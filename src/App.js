@@ -23,8 +23,8 @@ const App = () => {
 
     if (user) {
       setCurrentUser(user);
-      setShowAddDashboard(user.roles.includes("ROLE_L_1"));
-      setShowAddTask(user.roles.includes("ROLE_L_2"));
+      setShowAddDashboard(user.roles.includes("user_lvl_1"));
+      setShowAddTask(user.roles.includes("user_lvl_2"));
     }
   }, []);
 
