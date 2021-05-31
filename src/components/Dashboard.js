@@ -1,32 +1,60 @@
-import React from "react";
-import AuthService from "../services/auth.service";
+import React, { useState, useEffect } from "react";
+import {Link} from "react-router-dom";
+import DashboardService from "../services/dashboard.service";
+import TaskService from "../services/task.service";
+import DashboardTaskListItem from './DashboardTaskListItem'
 
 // TODO: Change as needed
-const Dashboard = () => {
-  const currentUser = AuthService.getCurrentUser();
+const Dashboard = (props) => {
+  const [dashboard, setDashboard] = useState({});
+  const [tasks, setTasks] = useState([]);
+
+  const getDashboard = id => {
+    DashboardService.get(id)
+      .then(response => {
+        setDashboard(response.data);
+      })
+      .catch(e => {
+        console.error(e)
+      })
+
+    DashboardService.getTasks(id)
+      .then(response => {
+        setTasks(response.data);
+        console.error(response.data);
+      })
+      .catch(e => {
+        console.error(e);
+      });
+  };
+
+  useEffect(() => {
+    getDashboard(props.match.params.id);
+  }, [props.match.params.id]);
+
+  const updateStatus = (id, selectedValue) => {
+    TaskService.updateTask(id, {status: selectedValue})
+      .then(response => { // TODO
+        // setTasks(response.data);
+        console.error(response.data);
+        if (response.data.status == "success") {
+          setTasks(tasks.map((task) => task.id === id ? {...task, status: selectedValue} : task));
+        }
+      })
+      .catch(e => {
+        console.error(e);
+      });
+  };
 
   return (
-    <div className="container">
-      <header className="jumbotron">
-        <h3>
-          <strong>{currentUser.username}</strong> Profile
-        </h3>
-      </header>
-      <p>
-        <strong>Token:</strong> {currentUser.accessToken.substring(0, 20)} ...{" "}
-        {currentUser.accessToken.substr(currentUser.accessToken.length - 20)}
-      </p>
-      <p>
-        <strong>Id:</strong> {currentUser.id}
-      </p>
-      <p>
-        <strong>Email:</strong> {currentUser.email}
-      </p>
-      <strong>Authorities:</strong>
-      <ul>
-        {currentUser.roles &&
-          currentUser.roles.map((role, index) => <li key={index}>{role}</li>)}
-      </ul>
+    <div>
+        <Link to={`/dashboard/${dashboard.id}/view`}>{dashboard.name}</Link>
+            <DashboardTaskListItem headerName={'TODO'} tasks={tasks.filter((task) => task.status === 'TODO')} 
+            onSelectStatus={updateStatus} />
+            <DashboardTaskListItem headerName={'In Progress'} tasks={tasks.filter((task) => task.status === 'In Progress')} 
+            onSelectStatus={updateStatus} />
+            <DashboardTaskListItem headerName={'Done'} tasks={tasks.filter((task) => task.status === 'Done')}
+            onSelectStatus={updateStatus} />
     </div>
   );
 };

@@ -1,33 +1,117 @@
 import React, { useState, useEffect } from "react";
 
-import UserService from "../services/user.service";
+import DashboardService from "../services/dashboard.service";
 
-const AddDashboard = () => {
-  const [content, setContent] = useState("");
+const AddDashboard = (dashboardDetails) => {
+  // const [content, setContent] = useState("");
 
-  useEffect(() => {
-    UserService.addDashboard().then(
-      (response) => {
-        setContent(response.data);
-      },
-      (error) => {
-        const _content =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
+  const initialDashboardState = dashboardDetails ? dashboardDetails : {
+    id: null,
+    name: "",
+    description: "",
+    // tasks: []
+  };
 
-        setContent(_content);
-      }
-    );
-  }, []);
+  const [dashboard, setDashboard] = useState(initialDashboardState);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleInputChange = event => {
+    const {name, value} = event.target;
+    setDashboard({...dashboard, [name]: value});
+  }
+
+  const saveDashboard = () => {
+    var data = {
+      name: dashboard.name,
+      description: dashboard.description
+    };
+
+    DashboardService.create(data)
+      .then(response => {
+        setDashboard({
+          id: response.data.id,
+          name: response.data.name,
+          description: response.data.description
+        });
+        setSubmitted(true);
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  };
+
+  const newDashboard = () => {
+    setDashboard(initialDashboardState);
+    setSubmitted(false);
+  };
+
+  // useEffect(() => {
+  //   DashboardService.addDashboard().then(
+  //     (response) => {
+  //       setContent(response.data);
+  //     },
+  //     (error) => {
+  //       const _content =
+  //         (error.response &&
+  //           error.response.data &&
+  //           error.response.data.message) ||
+  //         error.message ||
+  //         error.toString();
+
+  //       setContent(_content);
+  //     }
+  //   );
+  // }, []);
 
   return (
     <div className="container">
-      <header className="jumbotron">
+      {/* <header className="jumbotron">
         <h3>{content}</h3>
-      </header>
+      </header> */}
+      <div className="submit-form">
+        {submitted ? (
+          <div>
+            <h4>Dashboard added successfully!</h4>
+            <button className="btn btn-success" onClick={newDashboard}>
+              Add
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                required
+                value={dashboard.name}
+                // onChange={handleInputChange}
+                name="name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <input
+                type="text"
+                className="form-control"
+                id="description"
+                required
+                value={dashboard.description}
+                // onChange={handleInputChange}
+                name="description"
+              />
+            </div>
+
+            <button onClick={saveDashboard} className="btn btn-success">
+              {dashboardDetails ? "Save" : "Create"}
+            </button>
+            
+          </div>
+        )}
+      </div>
     </div>
   );
 };

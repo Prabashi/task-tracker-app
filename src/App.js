@@ -10,12 +10,16 @@ import Register from "./components/Register";
 // import Home from "./components/Home";
 import Dashboard from "./components/Dashboard";
 import AddDashboard from "./components/AddDashboard";
+import DashboardsList from "./components/DashboardsList";
 import AddTask from "./components/AddTask";
+import DashboardDetails from "./components/DashboardDetails";
+
 // import BoardAdmin from "./components/BoardAdmin";
 
 const App = () => {
   const [showAddDashboard, setShowAddDashboard] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showDashboards, setShowDashboards] = useState(false);
   const [currentUser, setCurrentUser] = useState(undefined);
 
   useEffect(() => {
@@ -23,8 +27,10 @@ const App = () => {
 
     if (user) {
       setCurrentUser(user);
-      setShowAddDashboard(user.roles.includes("user_lvl_1"));
-      setShowAddTask(user.roles.includes("user_lvl_2"));
+      setShowAddDashboard(user.roles.includes("ROLE_USER_LVL_1"));
+      // TODO: Once Admin panel is completed (Admin can change users' role), remove or clause. If a user's role changes to level 1, he automatically should a assigned role level 2 also
+      setShowAddTask(user.roles.includes("ROLE_USER_LVL_1") || user.roles.includes("ROLE_USER_LVL_2"));
+      setShowDashboards(user.roles.includes("ROLE_USER_LVL_1") || user.roles.includes("ROLE_USER_LVL_2"));
     }
   }, []);
 
@@ -51,6 +57,14 @@ const App = () => {
             <li className="nav-item">
               <Link to={"/task/add"} className="nav-link">
                 Add Task
+              </Link>
+            </li>
+          )}
+
+          {showDashboards && (
+            <li className="nav-item">
+              <Link to={"/dashboard/all"} className="nav-link">
+                Dashboards
               </Link>
             </li>
           )}
@@ -94,7 +108,7 @@ const App = () => {
         )}
       </nav>
 
-      <div className="container mt-3">
+      <div>
         <Switch>
           {/* <Route exact path={["/", "/home"]} component={Home} /> */}
           <Route exact path="/login" component={Login} />
@@ -102,7 +116,13 @@ const App = () => {
           {/* <Route exact path="/profile" component={Profile} /> */}
           {/* <Route path="/user" component={BoardUser} /> */}
           <Route path="/dashboard/add" component={AddDashboard} />
+          <Route exact path="/dashboard/all" component={DashboardsList} />
           <Route path="/task/add" component={AddTask} />
+          <Route path="/dashboard/:id/tasks" component={Dashboard} />
+          <Route path="/dashboard/:id/view" component={DashboardDetails} />
+          <Route path="/dashboard/:id/edit" component={AddDashboard} />
+          {/* <Route path="/task/add" render={props =>
+          (<AddTask {...props} dashboards={dashboards} />)} /> */}
         </Switch>
       </div>
     </div>
