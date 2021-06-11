@@ -13,6 +13,7 @@ import AddDashboard from "./components/AddDashboard";
 import DashboardsList from "./components/DashboardsList";
 import AddTask from "./components/AddTask";
 import DashboardDetails from "./components/DashboardDetails";
+import TaskDetails from "./components/TaskDetails";
 
 // import BoardAdmin from "./components/BoardAdmin";
 
@@ -121,6 +122,8 @@ const App = () => {
           <Route path="/dashboard/:id/tasks" component={Dashboard} />
           <Route path="/dashboard/:id/view" component={DashboardDetails} />
           <Route path="/dashboard/:id/edit" component={AddDashboard} />
+          <Route path="/task/:id/view" component={TaskDetails} />
+          <Route path="/task/:id/edit" component={AddTask} />
           {/* <Route path="/task/add" render={props =>
           (<AddTask {...props} dashboards={dashboards} />)} /> */}
         </Switch>

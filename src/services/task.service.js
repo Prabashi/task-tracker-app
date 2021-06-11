@@ -20,10 +20,15 @@ const updateTask = (id, data) => {
     return http.patch(`/task/${id}/update`, data);
 };
 
+const deleteTask = id => {
+    return http.delete(`/task/${id}`);
+};
+
 export default {
     create,
     getAll,
     get,
     getTasksByDashboard,
-    updateTask
+    updateTask,
+    deleteTask
 }

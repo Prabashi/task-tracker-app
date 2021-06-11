@@ -4,7 +4,6 @@ import DashboardService from "../services/dashboard.service";
 import TaskService from "../services/task.service";
 import DashboardTaskListItem from './DashboardTaskListItem'
 
-// TODO: Change as needed
 const Dashboard = (props) => {
   const [dashboard, setDashboard] = useState({});
   const [tasks, setTasks] = useState([]);

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 
 import DashboardService from "../services/dashboard.service";
 
-const AddDashboard = (dashboardDetails) => {
+// TODO: Fix issue: Click on Add Dashboard while in Edit Dashboard; the data in form fields still exist
+const AddDashboard = (props) => {
   // const [content, setContent] = useState("");
 
-  const initialDashboardState = dashboardDetails ? dashboardDetails : {
+  const initialDashboardState = props && props.location && props.location.dashboardProps ? props.location.dashboardProps : {
     id: null,
     name: "",
     description: "",
@@ -14,6 +15,7 @@ const AddDashboard = (dashboardDetails) => {
 
   const [dashboard, setDashboard] = useState(initialDashboardState);
   const [submitted, setSubmitted] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   const handleInputChange = event => {
     const {name, value} = event.target;
@@ -26,7 +28,17 @@ const AddDashboard = (dashboardDetails) => {
       description: dashboard.description
     };
 
-    DashboardService.create(data)
+    if (props && props.location && props.location.dashboardProps) {
+      DashboardService.update(dashboard.id, data)
+        .then(response => {
+          setUpdated(true);
+          console.log(response.data);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    } else {
+      DashboardService.create(data)
       .then(response => {
         setDashboard({
           id: response.data.id,
@@ -39,12 +51,15 @@ const AddDashboard = (dashboardDetails) => {
       .catch(e => {
         console.log(e);
       });
-  };
+      };
+    }
 
-  const newDashboard = () => {
-    setDashboard(initialDashboardState);
-    setSubmitted(false);
-  };
+    const newDashboard = () => {
+      setDashboard(initialDashboardState);
+      setSubmitted(false);
+    };
+
+    
 
   // useEffect(() => {
   //   DashboardService.addDashboard().then(
@@ -77,6 +92,13 @@ const AddDashboard = (dashboardDetails) => {
               Add
             </button>
           </div>
+        ) : updated ? (
+          <div>
+            <h4>Dashboard updated successfully!</h4>
+            <button className="btn btn-success" onClick={newDashboard}>
+              Add
+            </button>
+          </div>
         ) : (
           <div>
             <div className="form-group">
@@ -86,8 +108,8 @@ const AddDashboard = (dashboardDetails) => {
                 className="form-control"
                 id="name"
                 required
-                value={dashboard.name}
-                // onChange={handleInputChange}
+                defaultValue={dashboard.name}
+                onChange={handleInputChange}
                 name="name"
               />
             </div>
@@ -99,14 +121,14 @@ const AddDashboard = (dashboardDetails) => {
                 className="form-control"
                 id="description"
                 required
-                value={dashboard.description}
-                // onChange={handleInputChange}
+                defaultValue={dashboard.description}
+                onChange={handleInputChange}
                 name="description"
               />
             </div>
 
             <button onClick={saveDashboard} className="btn btn-success">
-              {dashboardDetails ? "Save" : "Create"}
+              {props && props.location && props.location.dashboardProps ? "Update" : "Create"}
             </button>
             
           </div>

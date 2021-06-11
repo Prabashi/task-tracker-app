@@ -3,12 +3,16 @@ import React, { useState, useEffect } from "react";
 import DashboardService from "../services/dashboard.service";
 import TaskService from "../services/task.service";
 
-const AddTask = () => {
-  const [dashboard, setDashboard] = useState("609d77a2228f6e5088ad565e"); // TODO
-  const [priority, setPriority] = useState("Medium");
-  const [status, setStatus] = useState("TODO");
+// TODO: Add Assignee and Reporter
+const AddTask = (props) => {
+  const [dashboard, setDashboard] = useState(props && props.location && props.location.taskProps ?
+     props.location.taskProps.dashboard : "609d77a2228f6e5088ad565e"); // TODO
+  const [priority, setPriority] = useState(props && props.location && props.location.taskProps ?
+    props.location.taskProps.priority : "Medium");
+  const [status, setStatus] = useState(props && props.location && props.location.taskProps ?
+    props.location.taskProps.status : "TODO");
 
-  const initialTaskState = {
+  const initialTaskState = props && props.location && props.location.taskProps ? props.location.taskProps : {
     title: "",
     description: "",
     dashboard: dashboard, // TODO: Should be mapped with Dashboard model
@@ -19,6 +23,7 @@ const AddTask = () => {
 
   const [task, setTask] = useState(initialTaskState);
   const [submitted, setSubmitted] = useState(false);
+  const [updated, setUpdated] = useState(false);
   const [dashboards, setDashboards] = useState([]);
 
   const handleInputChange = event => {
@@ -40,7 +45,17 @@ const AddTask = () => {
       status: status
     };
 
-    TaskService.create(data)
+    if (props && props.location && props.location.taskProps) {
+      TaskService.updateTask(task.id, data)
+        .then(response => {
+          setUpdated(true);
+          console.log(response.data);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    } else {
+      TaskService.create(data)
       .then(response => {
         setTask({
           id: response.data.id,
@@ -57,6 +72,7 @@ const AddTask = () => {
       .catch(e => {
         console.log(e);
       });
+    }
   };
 
   const newTask = () => {
@@ -77,6 +93,13 @@ const AddTask = () => {
               Add
             </button>
           </div>
+        )  : updated ? (
+          <div>
+            <h4>Task updated successfully!</h4>
+            <button className="btn btn-success" onClick={newTask}>
+              Add
+            </button>
+          </div>
         ) : (
           <div>
             <div className="form-group">
@@ -86,6 +109,7 @@ const AddTask = () => {
                 className="form-control"
                 id="title"
                 required
+                defaultValue={task.title}
                 onChange={handleInputChange}
                 name="title"
               />
@@ -98,6 +122,7 @@ const AddTask = () => {
                 className="form-control"
                 id="description"
                 required
+                defaultValue={task.description}
                 onChange={handleInputChange}
                 name="description"
               />
@@ -122,6 +147,7 @@ const AddTask = () => {
                 className="form-control"
                 id="estimate"
                 required
+                defaultValue={task.estimate}
                 onChange={handleInputChange}
                 name="estimate"
               />
@@ -149,7 +175,7 @@ const AddTask = () => {
             </div>
 
             <button onClick={saveTask} className="btn btn-success">
-              Create
+              {props && props.location && props.location.taskProps ? "Update" : "Create"}
             </button>
           </div>
         )}

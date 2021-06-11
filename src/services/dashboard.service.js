@@ -16,9 +16,19 @@ const getTasks = id => {
     return http.get(`/dashboard/${id}/tasks`);
 };
 
+const update = (id, data) => {
+    return http.put(`/dashboard/${id}/edit`, data);
+};
+
+const deleteDashboard = id => {
+    return http.delete(`/dashboard/${id}`);
+};
+
 export default {
     create,
     getAll,
     get,
-    getTasks
+    getTasks,
+    update,
+    deleteDashboard
 }
